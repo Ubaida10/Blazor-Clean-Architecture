@@ -1,0 +1,34 @@
+﻿@page "/"
+@using Core.Entities
+@inject Application.Services.MovieService MovieService
+
+@layout MainLayout
+
+<div class="container">
+    @if (_filteredMovies.Any())
+    {
+        <MovieIndex Model="@_filteredMovies"></MovieIndex> 
+    }
+    else
+    {
+        <h1 style="color: whitesmoke">Nothing to Display</h1>
+    }
+</div>
+
+@code {
+    private IEnumerable<Movie> _movies = new List<Movie>();
+    private IEnumerable<Movie> _filteredMovies = new List<Movie>();
+
+    protected override void OnInitialized()
+    {
+        _movies = MovieService.GetAllMovies();
+        _filteredMovies = _movies;
+    }
+
+    // Method to handle search string changes
+    public void OnSearchChanged(string searchString)
+    {
+        _filteredMovies = MovieService.GetMovieByName(searchString);
+        StateHasChanged(); // Ensure UI updates after filtering
+    }
+}

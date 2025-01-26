@@ -1,0 +1,2 @@
+// wwwroot/scripts/register.js
+

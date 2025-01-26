@@ -1,0 +1,30 @@
+﻿@page "/ava"
+@using System
+@rendermode InteractiveServer
+
+@code {
+    LogObject tmp = new LogObject();
+
+    public class LogObject {
+        public string Date { get; set; } = DateTime.Now.ToString();
+        public string CDate { get; set; }
+        public string CName { get; set; }
+    }
+
+    public void OnSubmit()
+    {
+        tmp.Date = DateTime.Now.ToString();
+        Console.WriteLine($"{tmp.CName} at {tmp.CDate} logged at {tmp.Date}");
+    }
+}
+
+<PageTitle>Home</PageTitle>
+<h1>Hello, world!</h1>
+
+<EditForm Model="tmp" OnValidSubmit="OnSubmit">
+    <InputText @bind-Value="tmp.CName" placeholder="Enter Name" /><br />
+    <InputText @bind-Value="tmp.CDate" placeholder="Enter Date" /><br />
+    <button type="submit">Submit</button>
+</EditForm>
+
+<p>@tmp.CName changed at @tmp.CDate logged at @tmp.Date</p>

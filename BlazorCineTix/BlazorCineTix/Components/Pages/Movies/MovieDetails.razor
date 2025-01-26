@@ -1,0 +1,124 @@
+@page "/movies/{Id:int}"
+@using Core.Entities
+@inject Application.Services.MovieService MovieService
+@layout MainLayout
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+
+<div class="container mt-5 mb-3">
+    <div class="card mb-3" style="background-color: transparent; color: white">
+        <div class="row g-0">
+            <div class="col-md-4" style="height: auto">
+                <img src="@_filteredMovie.ImageUrl" class="img-fluid rounded-start" alt="@_filteredMovie.Title">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">@_filteredMovie.Title</h5>
+                    <p class="card-text">@_filteredMovie.Synopsis</p>
+                    <p class="card-text"><strong>Duration: </strong>@_filteredMovie.Duration.Hours hr @_filteredMovie.Duration.Minutes min</p>
+                    <p class="card-text"><strong>Release Date: </strong>@_filteredMovie.ReleaseDate.ToString("dd MMM yyyy")</p>
+                    <p class="card-text"><strong>Price: </strong>@_filteredMovie.Price.ToString("c")</p>
+                    <p class="card-text"><strong><i class="fas fa-star" style="color: gold"></i> Rotten Tomato Score: </strong>@_filteredMovie.RottenTomatoScore%</p>
+                    <p class="card-text"><strong>Genre: </strong>@_filteredMovie.Genre</p>
+                    <!--
+                    <p class="card-text">
+                        <strong>Cinema: </strong>
+                        @if (Model.Cinema != null)
+                        {
+                            <a asp-controller="Cinemas" asp-action="Details" asp-route-id="@Model.CinemaId">
+                                @Model.Cinema.Name
+                            </a>
+                        }
+                        else
+                        {
+                            <span>Not Available</span>
+                        }
+                    </p>
+                    -->
+                    <p class="card-text">
+                        <strong>Producer: </strong>
+                        @if (_filteredMovie.Producer != null)
+                        {
+                            <a asp-controller="Producers" asp-action="Details" asp-route-id="@_filteredMovie.ProducerId">
+                                @_filteredMovie.Producer.Name
+                            </a>
+                        }
+                        else
+                        {
+                            <span>Not Available</span>
+                        }
+                    </p>
+
+                    <p class="card-text">
+                        <strong>Actors:</strong>
+                        @if (_filteredMovie.Actor!=null)
+                        {
+                            <a asp-controller="Actors" asp-action="Details" asp-route-id="@_filteredMovie.ActorId">
+                                @_filteredMovie.Actor.Name
+                            </a>
+                        }
+                        else
+                        {
+                            <li>No actors available</li>
+                        }
+                    </p>
+                    <!--
+                        <div class="mt-4">
+                            @if (!User.Identity.IsAuthenticated)
+                            {
+                                <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary">Login to reserve a seat</a>
+                            }
+                            else if (User.Identity.IsAuthenticated)
+                            {
+                                <a asp-controller="Orders" asp-action="ShopingCart" asp-route-movieId="@Model.Id" class="btn btn-primary">Reserve a seat</a>
+                            }
+                        </div>
+                     -->
+
+                    <div class="mt-4 mb-3">
+                        <a href="/movie/edit/@_filteredMovie.Id" class="btn btn-primary">Edit</a>
+                        <button class="btn btn-danger" @onclick="DeleteMovie">Delete</button>
+                    </div>
+
+                    @*if (User.Identity.IsAuthenticated)
+                    {
+                        <div class="mt-4 mb-3">
+                            <a asp-controller="Movies" asp-action="Edit" asp-route-id="@_filteredMovie.Id" class="btn btn-primary">Edit</a>
+                            <form asp-controller="Movies" asp-action="Delete" asp-route-id="@_filteredMovie.Id" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    }*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Movie _filteredMovie = new Movie();
+    protected override void OnInitialized()
+    {
+        _filteredMovie = MovieService.GetMovieById(Id);
+    }
+    
+    private async Task DeleteMovie()
+    {
+        try
+        {
+            // Call the service to delete the movie
+            await Task.Run(() => MovieService.DeleteMovie(Id));
+
+            // Redirect to the movies listing page
+            Navigation.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error deleting movie: {ex.Message}");
+        }
+    }
+}

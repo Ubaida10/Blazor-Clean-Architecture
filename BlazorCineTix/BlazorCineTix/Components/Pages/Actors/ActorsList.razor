@@ -1,0 +1,81 @@
+@page "/actors"
+@using Application.ServicesInterfaces
+@using Core.Entities
+@inject IActorService ActorService
+@rendermode InteractiveServer
+
+<div class="container">
+    <h1 class="my-4 text-center" style="color: #F5F5DC;">Actors</h1>
+
+    <!-- Add New Actor Button -->
+    <div class="text-end mb-5">
+        <a href="/actors/create" class="btn btn-primary">Add New Actor</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-dark">
+                <thead class="thead-dark text-center">
+                    <tr>
+                        <th>Profile Picture</th>
+                        <th>Full Name</th>
+                        <th>Date of Birth</th>
+                        <th>Biography</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (_actors != null && _actors.Any())
+                    {
+                        @foreach (var actor in _actors)
+                        {
+                            <tr>
+                                <td class="text-center align-middle">
+                                    <img src="@actor.ProfilePictureUrl" alt="@actor.Name" class="rounded-circle" style="max-width: 175px;" />
+                                </td>
+                                <td class="align-middle">@actor.Name</td>
+                                <td class="align-middle">@actor.DateOfBirth.ToString("yyyy-MM-dd")</td>
+                                <td class="align-middle">@GetShortBiography(actor.Biography)</td>
+                                <td class="text-center align-middle">
+                                    <a href="/actors/@actor.Id" class="btn btn-outline-info mb-2">
+                                        <i class="bi bi-eye"></i> Details
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center">No actors available.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    private IEnumerable<Actor> _actors = Enumerable.Empty<Actor>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Load actors from the service
+            _actors = await Task.Run(() => ActorService.GetAllActors());
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading actors: {ex.Message}");
+        }
+    }
+    
+    private string GetShortBiography(string? biography)
+    {
+        return !string.IsNullOrEmpty(biography) && biography.Length > 100
+            ? biography.Substring(0, 100) + "..."
+            : biography ?? "Biography not available.";
+    }
+}

@@ -1,0 +1,72 @@
+@page "/producer/{Id:int}"
+@using Application.ServicesInterfaces
+@using Core.Entities
+@inject IProducerService ProducerService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<div class="container full-height d-flex justify-content-center align-items-center">
+    <div class="card mb-3" style="max-width: 540px; background-color: transparent; color: white; border:none">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <img src="@_producer.ProfilePictureUrl" class="img-fluid rounded-start" alt="@_producer.Name">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">@_producer.Name</h5>
+                    <p class="card-text">@_producer.Biography</p>
+                    <p class="card-text"><strong>Date of Birth:</strong> @_producer.DateOfBirth.ToString("dd MMM yyyy")</p>
+                    <p class="card-text"><small class="text-body-secondary">Profile Last Updated Recently</small></p>
+
+                    <div class="mt-4 mb-3">
+                        <a href="/edit/producer/@_producer.Id" class="btn btn-primary">
+                            Edit
+                        </a>
+
+                        <button class="btn btn-danger" @onclick="DeleteProducer">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .full-height {
+        height: 100vh;
+    }
+    .centered-card {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Producer _producer = new Producer();
+
+    protected override void OnInitialized()
+    {
+        _producer = ProducerService.GetProducerById(Id)??new Producer();
+    }
+
+    private async Task DeleteProducer()
+    {
+        try
+        {
+            // Call the service to delete the movie
+            await Task.Run(() => ProducerService.DeleteProducer(Id));
+
+            // Redirect to the movies listing page
+            Navigation.NavigateTo("/producers/");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error deleting movie: {ex.Message}");
+        }
+    }
+}

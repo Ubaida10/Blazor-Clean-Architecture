@@ -1,0 +1,73 @@
+@page "/actors/{Id:int}"
+@using Application.ServicesInterfaces
+@using Core.Entities
+@inject IActorService ActorService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<div class="container full-height d-flex justify-content-center align-items-center">
+    <div class="card mb-3" style="max-width: 540px; background-color: transparent; color: white; border:none">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <img src="@_actor.ProfilePictureUrl" class="img-fluid rounded-start" alt="@_actor.Name">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">@_actor.Name</h5>
+                    <p class="card-text">@_actor.Biography</p>
+                    <p class="card-text"><strong>Date of Birth:</strong> @_actor.DateOfBirth.ToString("dd MMM yyyy")</p>
+                    <p class="card-text"><small class="text-body-secondary">Profile Last Updated Recently</small></p>
+
+                    <div class="mt-4 mb-3">
+                        <a href="/edit/actor/@_actor.Id" class="btn btn-primary">
+                            Edit
+                        </a>
+
+                        <button class="btn btn-danger" @onclick="DeleteActor">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .full-height {
+        height: 100vh;
+    }
+    .centered-card {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Actor _actor = new Actor();
+
+    protected override void OnInitialized()
+    {
+        _actor = ActorService.GetActorById(Id)??new Actor();
+    }
+
+    private async Task DeleteActor()
+    {
+        try
+        {
+            // Call the service to delete the movie
+            await Task.Run(() => ActorService.DeleteActor(Id));
+
+            // Redirect to the movies listing page
+            Navigation.NavigateTo("/actors");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error deleting movie: {ex.Message}");
+        }
+    }
+
+}

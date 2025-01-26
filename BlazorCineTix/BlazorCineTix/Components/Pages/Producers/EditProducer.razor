@@ -1,0 +1,65 @@
+@page "/edit/producer/{Id:int}"
+@using Core.Entities
+@inject Application.Services.ProducerService ProducerService
+
+<div class="container mt-5">
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8 col-lg-6">
+            <div class="bg-white p-5 rounded shadow-sm">
+                <div class="card-header text-center" style="background-color: transparent">
+                    <h1 style="color: #800020;">Update Producer</h1>
+                </div>
+
+                <EditForm Model="_producer" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="form-group text-center mb-4">
+                        <img id="ProfilePicturePreview" src="@_producer.ProfilePictureUrl" class="border-info rounded-circle" style="max-width: 150px; max-height: 150px;" />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="color: #800020">Name</label>
+                        <InputText @bind-Value="_producer.Name" class="form-control" style="border: none; border-bottom: 2px solid #800020;color: black" placeholder="Enter producer's name" />
+                        <ValidationMessage For="@(() => _producer.Name)" />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="color: #800020">Profile Picture URL</label>
+                        <InputFile OnChange="HandleProfilePictureUpload" class="form-control" style="border: none; border-bottom: 2px solid #800020;color: black" />
+                        <ValidationMessage For="@(() => _producer.ProfilePictureUrl)" />
+                    </div>
+                    <div class="d-grid gap-2 mb-3">
+                        <button type="submit" class="btn mt-3 mb-4" style="background-color: #800020; border-radius: 30px;color: white">Update</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private Producer _producer = new Producer();
+
+    protected override void OnInitialized()
+    {
+        _producer = ProducerService.GetProducerById(Id);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        ProducerService.UpdateProducer(_producer);
+    }
+
+    private async Task HandleProfilePictureUpload(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            // Handle file upload logic here
+            // E.g., save file or set _producer.ProfilePictureUrl with file path
+        }
+    }
+}
+

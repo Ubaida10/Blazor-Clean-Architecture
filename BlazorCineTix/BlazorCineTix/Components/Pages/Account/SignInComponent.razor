@@ -1,0 +1,88 @@
+@page "/login"
+@using Core.Data
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject Application.Services.UserService LoginService
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="row w-100 m-4">
+        <div class="col-md-6 mx-auto">
+            <div class="card shadow-sm" style="background-color: #F5F5DC;">
+                <div class="card-body p-4 mb-3">
+                    <h2 class="card-title mb-4 text-center" style="color: #800020">Login</h2>
+                    
+                    <EditForm Model="RegisterModel" OnValidSubmit="HandleSubmit" FormName="Login">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <!-- Email Address Field -->
+                        <div class="form-group mb-3">
+                            <label class="form-label" style="color: #800020">Email</label>
+                            <InputText @bind-Value="RegisterModel.Email"
+                                       class="form-control"
+                                       style="border: none; border-bottom: 2px solid #800020;color: black"
+                                       placeholder="Enter Email Address" />
+                            <ValidationMessage For="@(() => RegisterModel.Email)" />
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-group mb-3">
+                            <label class="form-label" style="color: #800020">Password</label>
+                            <InputText @bind-Value="RegisterModel.Password"
+                                       class="form-control"
+                                       style="border: none; border-bottom: 2px solid #800020;color: black"
+                                       placeholder="Enter Password" />
+                            <ValidationMessage For="@(() => RegisterModel.Password)" />
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="mb-3 mt-3">
+                            <button type="submit" class="btn btn-primary w-100" style="background-color: #800020; border-radius: 30px;">Login</button>
+                        </div>
+                        
+
+                        <div class="text-center mt-4">
+                            <span>Don't have an account?</span>
+                            <a href="/register" class="text-decoration-none text-primary">Signup</a>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Login RegisterModel = new Login();
+
+    // Ensure the model is initialized properly
+    protected override void OnInitialized()
+    {
+        RegisterModel = new Login
+        {
+            Email = "",
+            Password = ""
+        };
+    }
+
+    // Async method for handling form submission
+    private void HandleSubmit()
+    {
+        Console.WriteLine(RegisterModel.Email + "!");
+        try
+        {
+            // Assuming AddUser is an async method in your UserService
+            var result = LoginService.ValidateUser(RegisterModel.Email, RegisterModel.Password);
+            if (result == false)
+            {
+                Console.WriteLine("Login Failed");
+            }
+            // Redirect to login on successful registration
+            NavigationManager.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}

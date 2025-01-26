@@ -1,0 +1,90 @@
+@page "/edit/actor/{Id:int}"
+@using Application.ServicesInterfaces
+@using Core.Entities
+@inject IActorService ActorService
+@inject NavigationManager Navigation
+
+<div class="container mt-5" id="edit-actor-form">
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8 col-lg-6">
+            <div class="bg-white p-5 rounded shadow-sm">
+                <div class="card-header text-center" style="background-color: transparent">
+                    <h1 style="color: #800020;">Update Actor</h1>
+                </div>
+
+                @if (_actor != null)
+                {
+                    <EditForm Model="_actor" OnValidSubmit="HandleValidSubmit" FormName="UpdatingActor">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="form-group text-center mb-4">
+                            <img id="ProfilePicturePreview" src="@_actor.ProfilePictureUrl" class="border-info rounded-circle" style="max-width: 150px; max-height: 150px;" alt="Profile Picture" />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" style="color: #800020">Name</label>
+                            <InputText @bind-Value="_actor.Name"
+                                       class="form-control"
+                                       style="border: none; border-bottom: 2px solid #800020;color: black"
+                                       placeholder="Enter actor's name" />
+                            <ValidationMessage For="@(() => _actor.Name)" />
+                        </div>
+
+                        <div class="d-grid gap-2 mb-3">
+                            <button type="submit" class="btn mt-3 mb-4" style="background-color: #800020; border-radius: 30px;color: white">Update</button>
+                        </div>
+                    </EditForm>
+                }
+                else
+                {
+                    <p class="text-danger text-center">Actor not found or an error occurred. Please try again later.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private Actor _actor { get; set; } = new Actor
+    {
+        Name = string.Empty,
+        ProfilePictureUrl = string.Empty
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Console.WriteLine($"Loading actor with ID: {Id}");
+            var fetchedActor = await Task.Run(() => ActorService.GetActorById(Id));
+            if (fetchedActor != null)
+            {
+                _actor = fetchedActor;
+            }
+            else
+            {
+                Console.Error.WriteLine($"Actor with ID {Id} not found.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error fetching actor: {ex.Message}");
+        }
+    }
+
+    private void HandleValidSubmit()
+    {
+        try
+        {
+            Console.WriteLine($"Updating actor: {_actor.Name}");
+            ActorService.UpdateActor(_actor);
+            Navigation.NavigateTo("/actors");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error updating actor: {ex.Message}");
+        }
+    }
+}

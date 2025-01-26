@@ -1,0 +1,33 @@
+﻿services:
+  blazorcinetix:
+    image: blazorcinetix
+    build:
+      context: .
+      dockerfile: BlazorCineTix/Dockerfile
+    ports:
+      - "8080:80" # Map local port 8080 to the container's port 80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    depends_on:
+      - sqlserver
+    networks:
+      - blazorcinetix-network
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    ports:
+      - "1433:1433" # Expose SQL Server on port 1433
+    environment:
+      SA_PASSWORD: "LKJH1234" # Replace with a strong password
+      ACCEPT_EULA: "Y"
+    volumes:
+      - sql_data:/var/opt/mssql
+    networks:
+      - blazorcinetix-network
+
+networks:
+  blazorcinetix-network:
+
+volumes:
+  sql_data:

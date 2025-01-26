@@ -1,0 +1,77 @@
+@using Core.Entities
+@inject NavigationManager NavigationManager
+
+@*if (User.Identity.IsAuthenticated)
+        {
+            
+        }*@
+<div class="container px-4 py-5">
+    <h1 class="text-center text-white mb-5">Movies</h1>
+
+    <div class="d-flex justify-content-end mb-4">
+        <a href="/create/movie" class="btn btn-lg btn-primary rounded-pill px-4 shadow-sm">
+            <i class="bi bi-plus-circle"></i> Add Movie
+        </a>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var movie in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden movie-card">
+                        <a href="/movies/@movie.Id" class="d-block">
+                            <img src="@movie.ImageUrl" class="card-img-top" alt="@movie.Title" style="height: 300px; object-fit: cover;">
+                        </a>
+                        <div class="card-body text-center p-3">
+                            <h5 class="card-title text-truncate" style="color: #333; font-size: 1.1rem; font-weight: 500;">@movie.Title</h5>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center" role="alert">
+            No movies available.
+        </div>
+    }
+</div>
+
+<style>
+    .movie-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .movie-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-body h5 {
+        color: #333;
+        font-size: 1.1rem;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    /* Reduce spacing between image and title for better card layout */
+    .card-body {
+        padding: 1rem;
+    }
+</style>
+
+
+@code {
+    [Parameter] 
+    public IEnumerable<Movie> Model { get; set;}
+
+    private void NavigateToAddMovie()
+    {
+        Console.WriteLine("Clicked!!");
+        NavigationManager.NavigateTo("/create/movie");    
+    }
+
+}
